@@ -36,6 +36,12 @@ export async function fetchSource(url: URL): Promise<File> {
   } catch {
     throw new Error('Could not reach the converter server. Make sure `npm run dev` is running, then reload the page.')
   }
+  // A host without the proxy (a plain static deploy) answers with its own HTML page.
+  if (res.headers.get('content-type')?.includes('text/html')) {
+    throw new Error(
+      'This link’s host blocks downloads from other sites, and the download helper isn’t running here. Try a direct link from a host that allows it, or run the app locally with npm run dev.',
+    )
+  }
   if (!res.ok) throw new Error((await res.text()) || `Download failed (${res.status}).`)
   const blob = await res.blob()
   const header = res.headers.get('X-Filename')

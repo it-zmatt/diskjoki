@@ -2,7 +2,7 @@
 
 A single-page React + Vite + TypeScript app that turns a link into an MP3. Paste a direct link to an audio or video file (WAV, FLAC, M4A, MP4, WebM, …) or a YouTube-style page, and the conversion runs in the browser using [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm).
 
-For a direct file link (for example `https://example.com/track.wav`) the browser downloads it and converts it locally. If the host blocks cross-origin requests (no `Access-Control-Allow-Origin`), the app retries through a small proxy built into the Vite dev and preview servers (`server/fetchProxy.ts`, served at `/api/fetch?url=…`), which downloads the file on your machine and passes it back. The proxy refuses local and private network addresses and files over 500 MB. A plain static deploy of `dist/` has no proxy, so there only CORS-enabled links work.
+For a direct file link (for example `https://example.com/track.wav`) the browser downloads it and converts it locally. If the host blocks cross-origin requests (no `Access-Control-Allow-Origin`), the app retries through a small proxy built into the Vite dev and preview servers (`server/fetchProxy.ts`, served at `/api/fetch?url=…`), which downloads the file on your machine and passes it back. The proxy refuses local and private network addresses and files over 500 MB.
 
 Web page links (YouTube, SoundCloud and other sites [yt-dlp](https://github.com/yt-dlp/yt-dlp) supports) also work through the proxy: when a link returns a page instead of a file, the proxy runs `yt-dlp` to download just the audio track (playlists are ignored, so a `&list=` link gets the one video) and hands that to the converter. This needs `yt-dlp` on your PATH:
 
@@ -27,6 +27,13 @@ Then open http://localhost:5173. Other scripts:
 - `npm run preview` serves the production build (with the same isolation headers)
 
 `vite.config.ts` sends `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` on both servers, as ffmpeg.wasm requires. If you deploy elsewhere, your host must send them too. The ffmpeg core (~30 MB) is fetched from unpkg on the first conversion and then reused.
+
+## Deploying to Netlify
+
+`netlify.toml` builds the app, sends the cross-origin isolation headers ffmpeg.wasm needs, and deploys `netlify/functions/fetch.ts` at `/api/fetch`. On Netlify:
+
+- Direct links to audio or video files work, including hosts that block cross-origin downloads, up to 20 MB (Netlify's limit for streamed function responses).
+- Web page links such as YouTube don't: Netlify functions can't run `yt-dlp`, and YouTube blocks most cloud servers anyway. The app says so instead of failing silently. Use `npm run dev` locally for those.
 
 ## How it works
 

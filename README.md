@@ -1,6 +1,16 @@
 # mp3-converter
 
-A single-page React + Vite + TypeScript app that converts local audio and video files (WAV, FLAC, M4A, MP4, WebM, …) to MP3 entirely in the browser using [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm). No uploads: files never leave your device.
+A single-page React + Vite + TypeScript app that turns a link into an MP3. Paste a direct link to an audio or video file (WAV, FLAC, M4A, MP4, WebM, …) or a YouTube-style page, and the conversion runs in the browser using [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm).
+
+For a direct file link (for example `https://example.com/track.wav`) the browser downloads it and converts it locally. If the host blocks cross-origin requests (no `Access-Control-Allow-Origin`), the app retries through a small proxy built into the Vite dev and preview servers (`server/fetchProxy.ts`, served at `/api/fetch?url=…`), which downloads the file on your machine and passes it back. The proxy refuses local and private network addresses and files over 500 MB. A plain static deploy of `dist/` has no proxy, so there only CORS-enabled links work.
+
+Web page links (YouTube, SoundCloud and other sites [yt-dlp](https://github.com/yt-dlp/yt-dlp) supports) also work through the proxy: when a link returns a page instead of a file, the proxy runs `yt-dlp` to download just the audio track (playlists are ignored, so a `&list=` link gets the one video) and hands that to the converter. This needs `yt-dlp` on your PATH:
+
+```bash
+brew install yt-dlp
+```
+
+Only download content you have the rights to; YouTube's terms don't allow downloading outside its own apps.
 
 ## Run it
 
@@ -19,13 +29,13 @@ Then open http://localhost:5173. Other scripts:
 
 ## How it works
 
-`src/lib/ffmpeg.ts` loads ffmpeg once, writes the dropped file into ffmpeg's virtual filesystem, runs
+`src/lib/source.ts` fetches a pasted link into a `File` (reusing it if you convert the same link again at another quality), and `src/lib/ffmpeg.ts` loads ffmpeg once, writes the file into ffmpeg's virtual filesystem, runs
 
 ```
 ffmpeg -i input.<ext> -vn -codec:a libmp3lame -b:a <bitrate> output.mp3
 ```
 
-reads `output.mp3` back as an `audio/mpeg` Blob, and cleans up the virtual files. `-vn` drops any video stream, so video files work too. `src/hooks/useConverter.ts` tracks the `idle → loading → converting → done | error` states for the UI.
+reads `output.mp3` back as an `audio/mpeg` Blob, and cleans up the virtual files. `-vn` drops any video stream, so video files work too. `src/hooks/useConverter.ts` tracks the `idle → fetching → loading → converting → done | error` states for the UI, which is styled like a Mac OS X 10.2-era Aqua window with an iTunes-style status display.
 
 ## Choosing a bitrate
 

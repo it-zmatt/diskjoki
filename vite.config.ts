@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fetchProxy } from './server/fetchProxy'
 
 // ffmpeg.wasm needs a cross-origin isolated page (SharedArrayBuffer).
 const isolationHeaders = {
@@ -8,7 +9,7 @@ const isolationHeaders = {
 }
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), fetchProxy()],
   // Pre-bundling breaks the worker that @ffmpeg/ffmpeg spawns.
   optimizeDeps: {
     exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],

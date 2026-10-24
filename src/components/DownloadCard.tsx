@@ -1,28 +1,34 @@
+import { useEffect, useRef } from 'react'
 import { formatBytes, type ConvertResult } from '../lib/ffmpeg'
 
 interface Props {
-  originalSize: number
   result: ConvertResult
+  originalSize: number
+  onReset: () => void
 }
 
-export default function DownloadCard({ originalSize, result }: Props) {
+export default function DownloadCard({ result, originalSize, onReset }: Props) {
+  const ref = useRef<HTMLElement>(null)
+
+  // Bring the finished track into view; it can land below the fold.
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [result.url])
+
   return (
-    <div className="download-card">
-      <p className="download-name">{result.name}</p>
-      <dl className="download-sizes">
-        <div>
-          <dt>ORIGINAL</dt>
-          <dd>{formatBytes(originalSize)}</dd>
-        </div>
-        <div>
-          <dt>MP3</dt>
-          <dd>{formatBytes(result.size)}</dd>
-        </div>
-      </dl>
-      <audio className="download-preview" controls src={result.url} />
-      <a className="btn btn-download" href={result.url} download={result.name}>
-        DOWNLOAD MP3
-      </a>
-    </div>
+    <section ref={ref} className="result" aria-label="Your MP3">
+      <audio className="result-player" controls src={result.url} />
+      <p className="result-meta">
+        Saved as “{result.name}” · source was {formatBytes(originalSize)}
+      </p>
+      <div className="button-row">
+        <button type="button" className="aqua-btn" onClick={onReset}>
+          Convert Another
+        </button>
+        <a className="aqua-btn aqua-btn-blue" href={result.url} download={result.name}>
+          Download MP3
+        </a>
+      </div>
+    </section>
   )
 }

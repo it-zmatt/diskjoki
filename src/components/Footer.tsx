@@ -1,8 +1,7 @@
 export default function Footer() {
   return (
     <footer className="footer">
-      <p>Conversion runs in your browser with ffmpeg.wasm.</p>
-      <p>Your files never leave your device.</p>
+      Converted on your computer with ffmpeg.wasm · Only download what you have the rights to
     </footer>
   )
 }

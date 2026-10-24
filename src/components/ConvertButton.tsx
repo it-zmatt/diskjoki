@@ -1,13 +1,13 @@
 interface Props {
   disabled: boolean
   busy: boolean
-  onClick: () => void
+  again: boolean
 }
 
-export default function ConvertButton({ disabled, busy, onClick }: Props) {
+export default function ConvertButton({ disabled, busy, again }: Props) {
   return (
-    <button type="button" className="btn btn-convert" disabled={disabled} onClick={onClick}>
-      {busy ? 'SPINNING…' : 'CONVERT'}
+    <button type="submit" className={`aqua-btn${again ? '' : ' aqua-btn-default'}`} disabled={disabled}>
+      {busy ? 'Working…' : again ? 'Convert Again' : 'Convert'}
     </button>
   )
 }

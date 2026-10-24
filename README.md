@@ -1,4 +1,4 @@
-# mp3-converter
+# diskjoki
 
 A single-page React + Vite + TypeScript app that turns a link into an MP3. Paste a direct link to an audio or video file (WAV, FLAC, M4A, MP4, WebM, …) or a YouTube-style page, and the conversion runs in the browser using [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm).
 
@@ -15,7 +15,8 @@ Only download content you have the rights to; YouTube's terms don't allow downlo
 ## Run it
 
 ```bash
-cd mp3-converter
+git clone https://github.com/it-zmatt/diskjoki.git
+cd diskjoki
 npm install
 npm run dev
 ```

@@ -6,7 +6,7 @@ import { extname, join } from 'node:path'
 import { Readable } from 'node:stream'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Plugin } from 'vite'
-import { fetchPublic, ProxyError } from './safeFetch'
+import { fetchPublic, ProxyError } from './safeFetch.ts'
 
 // Lets the browser load file links whose hosts don't send CORS headers:
 // GET /api/fetch?url=<link> downloads the file on the dev/preview server
@@ -15,6 +15,12 @@ import { fetchPublic, ProxyError } from './safeFetch'
 
 const MAX_BYTES = 500 * 1024 * 1024
 const YT_DLP_TIMEOUT_MS = 5 * 60 * 1000
+// yt-dlp is heavy; on a small server, run only a couple at once.
+const YT_DLP_MAX_JOBS = Number(process.env.YT_DLP_MAX_JOBS ?? 2)
+// Optional Netscape-format cookies file, for hosts where YouTube asks to sign in.
+const YT_DLP_COOKIES = process.env.YT_DLP_COOKIES
+
+let ytDlpJobs = 0
 
 const AUDIO_TYPES: Record<string, string> = {
   '.m4a': 'audio/mp4',
@@ -52,6 +58,7 @@ function runYtDlp(url: URL, dir: string): Promise<void> {
     '--no-progress',
     '--quiet',
     '--no-warnings',
+    ...(YT_DLP_COOKIES ? ['--cookies', YT_DLP_COOKIES] : []),
     '--',
     url.href,
   ]
@@ -77,10 +84,14 @@ function runYtDlp(url: URL, dir: string): Promise<void> {
 }
 
 async function extractAudio(url: URL, res: ServerResponse): Promise<void> {
+  if (ytDlpJobs >= YT_DLP_MAX_JOBS) {
+    throw new ProxyError(429, 'The converter is busy with other downloads. Try again in a minute.')
+  }
+  ytDlpJobs++
   const dir = await mkdtemp(join(tmpdir(), 'mp3-converter-'))
   const cleanup = () => void rm(dir, { recursive: true, force: true })
   try {
-    await runYtDlp(url, dir)
+    await runYtDlp(url, dir).finally(() => ytDlpJobs--)
     const [name] = await readdir(dir)
     if (!name) throw new ProxyError(413, 'No audio found on that page, or it is larger than 500 MB.')
     const path = join(dir, name)
@@ -104,7 +115,7 @@ async function extractAudio(url: URL, res: ServerResponse): Promise<void> {
   }
 }
 
-async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
+export async function handleFetch(req: IncomingMessage, res: ServerResponse): Promise<void> {
   const fail = (status: number, message: string) => {
     res.statusCode = status
     res.setHeader('Content-Type', 'text/plain; charset=utf-8')
@@ -152,7 +163,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 }
 
 export function fetchProxy(): Plugin {
-  const route = (req: IncomingMessage, res: ServerResponse) => void handle(req, res)
+  const route = (req: IncomingMessage, res: ServerResponse) => void handleFetch(req, res)
 
   // Block bodies on purpose: a hook that returns a function is treated as a post hook.
   return {

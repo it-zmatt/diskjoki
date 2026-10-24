@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { fetchProxy } from './server/fetchProxy'
+import { fetchProxy } from './server/fetchProxy.ts'
 
 // ffmpeg.wasm needs a cross-origin isolated page (SharedArrayBuffer).
 const isolationHeaders = {

@@ -1,4 +1,4 @@
-import { fetchPublic, ProxyError } from '../../server/safeFetch'
+import { fetchPublic, ProxyError } from '../../server/safeFetch.ts'
 
 // Netlify version of /api/fetch for the deployed site. It relays direct file
 // links whose hosts block cross-origin downloads. It can't run yt-dlp, so web

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "start": "node server/index.ts"
   },
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
@@ -22,5 +23,8 @@
     "@vitejs/plugin-react": "^6.1.2",
     "typescript": "^5.5.4",
     "vite": "^8.3.2"
+  },
+  "engines": {
+    "node": ">=22.18"
   }
 }

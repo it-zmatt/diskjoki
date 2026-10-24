@@ -1,0 +1,15 @@
+# Render Blueprint: New > Blueprint, then pick this repo.
+services:
+  - type: web
+    name: diskjoki
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # Lets the Netlify site send its downloads here (comma-separated).
+      - key: ALLOWED_ORIGINS
+        value: https://diskjoki.netlify.app
+      - key: RATE_LIMIT_PER_HOUR
+        value: "30"
+      - key: YT_DLP_MAX_JOBS
+        value: "2"

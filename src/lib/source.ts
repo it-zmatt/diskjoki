@@ -1,3 +1,7 @@
+// Where /api/fetch lives. Empty means this same site (dev server or the
+// Docker server); set VITE_API_URL at build time to use a separate server.
+const API_BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').replace(/\/$/, '')
+
 export function parseLink(value: string): URL | null {
   try {
     const url = new URL(value.trim())
@@ -32,9 +36,9 @@ export async function fetchSource(url: URL): Promise<File> {
 
   let res: Response
   try {
-    res = await fetch(`/api/fetch?url=${encodeURIComponent(url.href)}`)
+    res = await fetch(`${API_BASE}/api/fetch?url=${encodeURIComponent(url.href)}`)
   } catch {
-    throw new Error('Could not reach the converter server. Make sure `npm run dev` is running, then reload the page.')
+    throw new Error('Could not reach the download server. If it was asleep, wait a minute and try again.')
   }
   // A host without the proxy (a plain static deploy) answers with its own HTML page.
   if (res.headers.get('content-type')?.includes('text/html')) {

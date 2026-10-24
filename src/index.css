@@ -1,0 +1,463 @@
+:root {
+  --bg: #2b2b2b;
+  --panel: #3a3a3a;
+  --steel: #8c8c8c;
+  --mustard: #e8b931;
+  --orange: #e4572e;
+  --teal: #2ec4b6;
+  --pink: #ff4f79;
+  --text: #f4f1e8;
+
+  --bevel-light: #5a5a5a;
+  --bevel-dark: #1c1c1c;
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
+  --font-body: 'VT323', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Faint CRT scanlines over everything. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  text-align: center;
+}
+
+.cassette-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cassette-side {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--steel);
+  border: 2px solid var(--steel);
+  padding: 4px 6px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: clamp(18px, 5vw, 30px);
+  letter-spacing: 2px;
+  color: var(--mustard);
+  text-shadow:
+    0 0 4px rgba(232, 185, 49, 0.9),
+    0 0 14px rgba(228, 87, 46, 0.6),
+    0 0 28px rgba(255, 79, 121, 0.35);
+}
+
+.tagline {
+  margin: 14px 0 18px;
+  font-size: 26px;
+  color: var(--text);
+}
+
+.eq-stripe {
+  height: 8px;
+  max-width: 420px;
+  margin: 0 auto;
+  background: linear-gradient(
+    to right,
+    var(--mustard) 0 25%,
+    var(--orange) 25% 50%,
+    var(--teal) 50% 75%,
+    var(--pink) 75% 100%
+  );
+  box-shadow: 0 0 12px rgba(46, 196, 182, 0.35);
+}
+
+/* ---------- Deck panel ---------- */
+
+.deck {
+  background: var(--panel);
+  border: 4px solid;
+  border-color: var(--bevel-light) var(--bevel-dark) var(--bevel-dark) var(--bevel-light);
+  outline: 2px solid var(--steel);
+  outline-offset: -10px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.dropzone {
+  border: 3px dashed var(--steel);
+  background: rgba(0, 0, 0, 0.18);
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone:focus-visible,
+.dropzone.is-dragging {
+  border-color: var(--mustard);
+  background: rgba(232, 185, 49, 0.08);
+  outline: none;
+}
+
+.dropzone.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dropzone-icon {
+  font-size: 40px;
+  color: var(--mustard);
+}
+
+.dropzone-file {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.dropzone-hint {
+  color: var(--steel);
+}
+
+.controls {
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Cassette-style bitrate selector */
+
+.cassette-select {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cassette-select-label {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--steel);
+}
+
+.cassette-select-window {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #222;
+  border: 3px solid;
+  border-color: var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark);
+  border-radius: 6px;
+}
+
+.reel {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid var(--steel);
+  background:
+    radial-gradient(circle, var(--steel) 0 3px, transparent 4px),
+    conic-gradient(var(--bevel-dark) 0 15%, transparent 15% 33%, var(--bevel-dark) 33% 48%, transparent 48% 66%, var(--bevel-dark) 66% 81%, transparent 81%);
+}
+
+.cassette-select select {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-body);
+  font-size: 22px;
+  border: none;
+  border-radius: 2px;
+  padding: 4px 28px 4px 10px;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--bg) 50%), linear-gradient(135deg, var(--bg) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 55%, calc(100% - 10px) 55%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.cassette-select select:focus-visible {
+  outline: 3px solid var(--mustard);
+}
+
+/* Chunky buttons */
+
+.btn {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text);
+  border: none;
+  padding: 18px 26px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+  box-shadow:
+    inset -4px -4px 0 rgba(0, 0, 0, 0.35),
+    inset 4px 4px 0 rgba(255, 255, 255, 0.25),
+    0 6px 0 var(--bevel-dark);
+  transition: transform 0.05s;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(5px);
+  box-shadow:
+    inset 4px 4px 0 rgba(0, 0, 0, 0.35),
+    inset -2px -2px 0 rgba(255, 255, 255, 0.15),
+    0 1px 0 var(--bevel-dark);
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--mustard);
+  outline-offset: 3px;
+}
+
+.btn:disabled {
+  background: var(--steel);
+  color: var(--panel);
+  cursor: not-allowed;
+}
+
+.btn-convert {
+  background: var(--orange);
+  align-self: flex-end;
+  min-width: 180px;
+}
+
+.btn-convert:hover:not(:disabled) {
+  background: #f06a42;
+}
+
+.btn-download {
+  background: var(--teal);
+  color: var(--bg);
+}
+
+.btn-download:hover {
+  background: #45d6c8;
+}
+
+/* Spinning vinyl */
+
+.progress-record {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.vinyl {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #111 0 2px, #1d1d1d 3px 4px);
+  box-shadow: 0 0 0 3px var(--bevel-dark), 0 0 18px rgba(46, 196, 182, 0.25);
+  display: grid;
+  place-items: center;
+  animation: spin 1.2s linear infinite;
+}
+
+.vinyl-label {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: conic-gradient(var(--orange) 0 50%, var(--mustard) 50% 100%);
+  position: relative;
+}
+
+.vinyl-label::after {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vinyl {
+    animation-duration: 6s;
+  }
+}
+
+.progress-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-percent {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--teal);
+}
+
+.progress-bar {
+  height: 14px;
+  background: #222;
+  border: 2px solid var(--steel);
+}
+
+.progress-fill {
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--teal) 0 10px, transparent 10px 12px);
+  transition: width 0.2s;
+}
+
+/* Result + error */
+
+.download-card {
+  border: 3px solid var(--teal);
+  background: rgba(46, 196, 182, 0.08);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.download-name {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-all;
+  color: var(--teal);
+}
+
+.download-sizes {
+  margin: 0;
+  display: flex;
+  gap: 32px;
+}
+
+.download-sizes dt {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--steel);
+}
+
+.download-sizes dd {
+  margin: 4px 0 0;
+  font-size: 26px;
+}
+
+.download-preview {
+  width: 100%;
+}
+
+.error {
+  margin: 0;
+  border: 3px solid var(--pink);
+  background: rgba(255, 79, 121, 0.1);
+  color: var(--pink);
+  padding: 14px 16px;
+}
+
+.error strong {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  text-align: center;
+  color: var(--steel);
+  font-size: 18px;
+}
+
+.footer p {
+  margin: 2px 0;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 560px) {
+  .page {
+    padding-top: 28px;
+  }
+
+  .deck {
+    padding: 20px 16px;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .btn-convert {
+    align-self: stretch;
+  }
+
+  .progress-record {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .progress-text {
+    width: 100%;
+  }
+}

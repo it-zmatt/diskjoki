@@ -14,11 +14,14 @@ interface Props {
 
 export default function QualitySelect({ value, disabled, onChange }: Props) {
   const selected = OPTIONS.find((o) => o.value === value)
+  // A plain div rather than <fieldset>: Safari won't lay a fieldset out as a grid.
   return (
-    <fieldset className="row" disabled={disabled}>
-      <legend className="row-label">Quality:</legend>
+    <div className={`row${disabled ? ' is-disabled' : ''}`}>
+      <span id="quality-label" className="row-label">
+        Quality:
+      </span>
       <div className="row-body">
-        <div className="segmented">
+        <div className="segmented" role="radiogroup" aria-labelledby="quality-label">
           {OPTIONS.map((o) => (
             <label key={o.value} className={`segment${value === o.value ? ' is-selected' : ''}`}>
               <input
@@ -26,6 +29,7 @@ export default function QualitySelect({ value, disabled, onChange }: Props) {
                 name="bitrate"
                 value={o.value}
                 checked={value === o.value}
+                disabled={disabled}
                 onChange={() => onChange(o.value)}
               />
               {o.name}
@@ -35,6 +39,6 @@ export default function QualitySelect({ value, disabled, onChange }: Props) {
         </div>
         <p className="row-hint">{selected?.size}</p>
       </div>
-    </fieldset>
+    </div>
   )
 }
